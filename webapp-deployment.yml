@@ -1,0 +1,50 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    kubernetes.io/metadata.name: asteroid-herder
+  name: asteroid-herder
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webapp-deployment
+  namespace: asteroid-herder
+  labels:
+    app.kubernetes.io/name: webapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: webapp
+  template:
+    metadata:
+      labels:
+        app: webapp
+    spec:
+      containers:
+      - name: webapp
+        image: my-web-app:1.0.0
+        ports:
+        - containerPort: 80
+          name: http-web-svc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/name: webapp
+  name: http-web-svc
+  namespace: asteroid-herder
+spec:
+  ports:
+  - nodePort: 30003
+    port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: webapp
+  type: NodePort
